@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { publicDir } from './constants'
+import { publicDir } from './constants.js'
 import { build } from 'vite'
 
 import type { FastifyInstance } from 'fastify'
@@ -60,6 +60,8 @@ async function readFiles() {
 }
 
 async function writeFiles(files: FileData[]) {
+  performance.mark('build-start')
+
   const allowedFileNames = await fs.readdir(path.resolve(publicDir, 'input'), {
     encoding: 'utf8',
     recursive: true
@@ -78,8 +80,6 @@ async function writeFiles(files: FileData[]) {
 }
 
 async function buildProject() {
-  performance.mark('build-start')
-
   await build({
     root: path.resolve(publicDir, 'input'),
     logLevel: 'silent',
@@ -100,5 +100,8 @@ async function buildProject() {
 
   performance.mark('build-end')
   const perf = performance.measure('build', 'build-start', 'build-end')
-  return { time: Math.floor(perf.duration) }
+
+  return {
+    time: Math.floor(perf.duration)
+  }
 }

@@ -1,8 +1,8 @@
 import fastify from 'fastify'
 import fastifyStatic from '@fastify/static'
 
-import { api } from './api'
-import { publicDir } from './constants'
+import { api } from './api.js'
+import { publicDir } from './constants.js'
 
 const app = fastify()
 
@@ -11,7 +11,7 @@ app.register(fastifyStatic, {
 })
 
 app.get('/', (req, reply) => {
-  reply.sendFile('')
+  reply.sendFile('editor/index.html')
 })
 
 app.register((instance, options, done) => {
@@ -19,7 +19,7 @@ app.register((instance, options, done) => {
   done()
 }, { prefix: '/api' })
 
-app.listen({ host: '127.0.0.1', port: 3000 }, (err, address) => {
+app.listen({ port: 3000 }, (err, address) => {
   if (err) throw err
   console.log(`Server is now listening on ${address}`)
 })
