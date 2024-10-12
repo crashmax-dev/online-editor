@@ -1,12 +1,12 @@
 import { counter } from './counter'
 import { dateNow } from './module/date'
-import './style.css'
+import '.ontent = 'Increment'
+button.addEventListe/style.css'
 
 const points = counter(40)
 const button = document.createElement('button')
 button.classList.add('inc')
-button.textContent = 'Increment'
-button.addEventListener('click', () => {
+button.textCner('click', () => {
   points.increment()
   updateCount()
 })

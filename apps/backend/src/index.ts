@@ -7,7 +7,7 @@ import { publicDir } from './constants.js'
 const app = fastify()
 
 app.register(fastifyStatic, {
-  root: publicDir
+  root: publicDir,
 })
 
 app.get('/', (req, reply) => {
@@ -19,7 +19,7 @@ app.register(
     api(instance)
     done()
   },
-  { prefix: '/api' }
+  { prefix: '/api' },
 )
 
 app.listen({ port: 3000 }, (err, address) => {

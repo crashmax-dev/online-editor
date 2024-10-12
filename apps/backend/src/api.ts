@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { build } from 'vite'
-import type { FastifyInstance } from 'fastify'
-
 import { publicDir } from './constants.js'
+
+import type { FastifyInstance } from 'fastify'
 
 interface FileData {
   name: string
@@ -14,10 +14,10 @@ const SchemaFileData = {
   type: 'object',
   properties: {
     name: { type: 'string' },
-    source: { type: 'string' }
+    source: { type: 'string' },
   },
   required: ['name', 'source'],
-  additionalProperties: false
+  additionalProperties: false,
 }
 
 export function api(fastify: FastifyInstance) {
@@ -32,14 +32,14 @@ export function api(fastify: FastifyInstance) {
     async (req, reply) => {
       const res = await writeFiles(req.body)
       reply.send(res)
-    }
+    },
   )
 }
 
 function getInputFiles() {
   return fs.readdir(path.resolve(publicDir, 'input'), {
     encoding: 'utf8',
-    recursive: true
+    recursive: true,
   })
 }
 
@@ -55,7 +55,7 @@ async function readFiles() {
     const fileData = await fs.readFile(filePath, 'utf8')
     files[fileName === 'index.js' ? 'unshift' : 'push']({
       name: fileName,
-      source: fileData
+      source: fileData,
     })
   }
 
@@ -82,7 +82,7 @@ async function writeFiles(files: FileData[]) {
 async function buildProject() {
   const output = await build({
     root: path.resolve(publicDir, 'input'),
-    logLevel: 'silent',
+    // logLevel: 'silent',
     // cacheDir: path.resolve(publicDir, 'input', '.cache'),
     build: {
       emptyOutDir: true,
@@ -92,9 +92,9 @@ async function buildProject() {
         entry: 'index.js',
         name: 'output',
         formats: ['iife'],
-        fileName: () => 'index.js'
-      }
-    }
+        fileName: () => 'index.js',
+      },
+    },
   })
 
   performance.mark('build-end')
@@ -103,7 +103,7 @@ async function buildProject() {
   const buildMeta = {
     bundleSize: 0,
     modulesTransformed: 0,
-    time: Math.floor(perf.duration)
+    time: Math.floor(perf.duration),
   }
 
   if (Array.isArray(output)) {
