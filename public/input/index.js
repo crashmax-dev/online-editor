@@ -1,5 +1,6 @@
 import { counter } from './counter'
 import { dateNow } from './module/date'
+
 import './style.css'
 
 const points = counter(40)

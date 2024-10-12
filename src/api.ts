@@ -1,9 +1,9 @@
-import path from 'node:path'
 import fs from 'node:fs/promises'
-import { publicDir } from './constants.js'
+import path from 'node:path'
 import { build } from 'vite'
-
 import type { FastifyInstance } from 'fastify'
+
+import { publicDir } from './constants.js'
 
 interface FileData {
   name: string
@@ -94,8 +94,8 @@ async function buildProject() {
         name: 'output',
         formats: ['iife'],
         fileName: () => 'index.js'
-      },
-    },
+      }
+    }
   })
 
   performance.mark('build-end')
