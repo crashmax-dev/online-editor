@@ -1,16 +1,37 @@
 const app = document.querySelector('#app')
 document.body.classList.add('surface')
+document.body.style.margin = '0px'
+Object.assign(app.style, {
+  height: 'calc(100dvh - 16px)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+  padding: '8px'
+})
 
 let files = []
 let activeTab = 'tab-index.js'
 
-function renderEditor(time) {
-  const codeSection = document.createElement('section')
-  codeSection.classList.add('tabs')
+function renderEditor() {
+  const windowInput = document.createElement('div')
+  windowInput.classList.add('window')
+
+  const windowInputTitlebar = document.createElement('div')
+  windowInputTitlebar.classList.add('title-bar')
+  windowInput.append(windowInputTitlebar)
+
+  const windowInputTitlebarText = document.createElement('div')
+  windowInputTitlebarText.classList.add('title-bar-text')
+  windowInputTitlebarText.textContent = 'Visual Studio Code'
+  windowInputTitlebar.append(windowInputTitlebarText)
+
+  const windowInputBody = document.createElement('div')
+  windowInputBody.classList.add('window-body')
+  windowInput.append(windowInputBody)
 
   const menu = document.createElement('menu')
   menu.setAttribute('role', 'tablist')
-  codeSection.replaceChildren(menu)
+  windowInputBody.append(menu)
 
   for (const file of files) {
     const tabButton = document.createElement('button')
@@ -42,15 +63,16 @@ function renderEditor(time) {
     tabPanel.setAttribute('role', 'tabpanel')
     tabPanel.setAttribute('id', tabName)
     tabPanel.hidden = activeTab !== tabName
-    codeSection.append(tabPanel)
+    windowInputBody.append(tabPanel)
 
     const textarea = document.createElement('textarea')
     Object.assign(textarea.style, {
       width: '100%',
-      minHeight: '600px',
+      height: '40dvh',
       resize: 'vertical',
       fontSize: '16px',
-      fontFamily: 'monospace'
+      fontFamily: 'monospace',
+      background: 'transparent'
     })
     textarea.value = file.source
     textarea.addEventListener('input', () => (file.source = textarea.value))
@@ -65,39 +87,100 @@ function renderEditor(time) {
   saveButton.textContent = 'Save'
   saveButton.addEventListener('click', sendFiles)
   fieldActions.append(saveButton)
+  windowInputBody.append(fieldActions)
 
-  const iframeSection = document.createElement('article')
-  iframeSection.setAttribute('role', 'tabpanel')
-  iframeSection.setAttribute('iframe', '1')
-  iframeSection.style.marginTop = '9px'
+  const windowOutput = document.createElement('div')
+  windowOutput.classList.add('window')
+  Object.assign(windowOutput.style, {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  })
 
+  const windowTitlebar = document.createElement('div')
+  windowTitlebar.classList.add('title-bar')
+  windowOutput.append(windowTitlebar)
+
+  const windowTitlebarText = document.createElement('div')
+  windowTitlebarText.classList.add('title-bar-text')
+  windowTitlebarText.textContent = 'Output'
+  windowTitlebar.append(windowTitlebarText)
+
+  const windowTitlebarControls = document.createElement('div')
+  windowTitlebarControls.classList.add('title-bar-controls')
+  const maximizeWindowButton = document.createElement('button')
+  maximizeWindowButton.setAttribute('aria-label', 'Maximize')
+  maximizeWindowButton.addEventListener('click', () =>
+    open('/output/', 'target=_blank')
+  )
+  windowTitlebarControls.append(maximizeWindowButton)
+  windowTitlebar.append(windowTitlebarControls)
+
+  const windowBody = document.createElement('div')
+  windowBody.id = 'window-output'
+  windowBody.style.flex = '1'
+  windowBody.classList.add('window-body')
+  windowOutput.append(windowBody)
+
+  const statusBar = document.createElement('div')
+  statusBar.id = 'status-bar'
+  windowOutput.append(statusBar)
+
+  const iframe = renderIframe()
+  windowBody.append(iframe)
+  app.append(windowInput, windowOutput)
+}
+
+function renderIframe() {
   const iframe = document.createElement('iframe')
   iframe.style.width = '100%'
   iframe.setAttribute('frameborder', '0')
   iframe.src = '/output/index.html'
-  iframeSection.append(iframe)
-
-  if (time) {
-    const buildTime = document.createElement('div')
-    Object.assign(buildTime.style, {
-      position: 'absolute',
-      bottom: '4px',
-      right: '6px',
-      fontSize: '12px',
-      color: 'gray'
-    })
-    buildTime.textContent = `built in ${time}ms`
-    iframeSection.append(buildTime)
-  }
-
-  app.replaceChildren(codeSection, fieldActions, iframeSection)
+  return iframe
 }
 
 function renderError(data) {
-  const iframe = document.querySelector('article[iframe]')
+  const windowOutput = document.querySelector('#window-output')
   const errorMessage = document.createElement('pre')
   errorMessage.textContent = data.message.replace(/\u001b\[(31|39|36|33)m/g, '')
-  iframe.replaceChildren(errorMessage)
+  windowOutput.replaceChildren(errorMessage)
+}
+
+function renderOutput(data) {
+  const windowOutput = document.querySelector('#window-output')
+  const windowStatusBar = document.querySelector('#status-bar')
+  windowStatusBar.classList.add('status-bar')
+  const iframe = renderIframe()
+
+  const modulesTransformedField = document.createElement('p')
+  modulesTransformedField.classList.add('status-bar-field')
+  modulesTransformedField.textContent = `${data.modulesTransformed} modules transformed`
+
+  const bundleSizeField = document.createElement('p')
+  bundleSizeField.classList.add('status-bar-field')
+  bundleSizeField.textContent = `bundle size ${formatBytes(data.bundleSize)}`
+
+  const buildTimeField = document.createElement('p')
+  buildTimeField.classList.add('status-bar-field')
+  buildTimeField.textContent = `built in ${data.time}ms`
+
+  windowOutput.replaceChildren(iframe)
+  windowStatusBar.replaceChildren(
+    modulesTransformedField,
+    bundleSizeField,
+    buildTimeField
+  )
+}
+
+function formatBytes(bytes) {
+  const sizes = [
+    'B',
+    'KB',
+    'MB'
+  ]
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + sizes[i]
 }
 
 function openTab(event) {
@@ -132,10 +215,10 @@ async function sendFiles() {
       body: JSON.stringify(files)
     })
     const data = await req.json()
-    if (data.time) {
-      renderEditor(data.time)
-    } else {
+    if (data.error) {
       renderError(data)
+    } else {
+      renderOutput(data)
     }
   } catch (err) {
     console.error(err)
@@ -145,7 +228,7 @@ async function sendFiles() {
 fetchFiles().then(renderEditor)
 
 document.addEventListener('keydown', (event) => {
-  if (event.ctrlKey && event.key === 's') {
+  if (event.ctrlKey && event.code === 'KeyS') {
     if (!files.length) return
     event.preventDefault()
     sendFiles()

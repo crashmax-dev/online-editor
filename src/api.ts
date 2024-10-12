@@ -36,15 +36,18 @@ export function api(fastify: FastifyInstance) {
   )
 }
 
-async function readFiles() {
-  const fileNames = await fs.readdir(path.resolve(publicDir, 'input'), {
+function getInputFiles() {
+  return fs.readdir(path.resolve(publicDir, 'input'), {
     encoding: 'utf8',
     recursive: true
   })
+}
 
+async function readFiles() {
+  const inputFiles = await getInputFiles()
   const files: FileData[] = []
 
-  for (const fileName of fileNames) {
+  for (const fileName of inputFiles) {
     const filePath = path.resolve(publicDir, 'input', fileName)
     const fileStat = await fs.stat(filePath)
     if (fileStat.isDirectory()) continue
@@ -62,13 +65,10 @@ async function readFiles() {
 async function writeFiles(files: FileData[]) {
   performance.mark('build-start')
 
-  const allowedFileNames = await fs.readdir(path.resolve(publicDir, 'input'), {
-    encoding: 'utf8',
-    recursive: true
-  })
+  const allowedFiles = await getInputFiles()
 
   for (const file of files) {
-    if (!allowedFileNames.includes(file.name)) {
+    if (!allowedFiles.includes(file.name)) {
       throw new Error(`File "${file.name}" does not exist`)
     }
 
@@ -80,13 +80,12 @@ async function writeFiles(files: FileData[]) {
 }
 
 async function buildProject() {
-  await build({
+  const output = await build({
     root: path.resolve(publicDir, 'input'),
     logLevel: 'silent',
-    publicDir: 'public',
+    // cacheDir: path.resolve(publicDir, 'input', '.cache'),
     build: {
-      copyPublicDir: true,
-      emptyOutDir: false,
+      emptyOutDir: true,
       target: 'esnext',
       outDir: path.resolve(publicDir, 'output'),
       lib: {
@@ -101,7 +100,24 @@ async function buildProject() {
   performance.mark('build-end')
   const perf = performance.measure('build', 'build-start', 'build-end')
 
-  return {
+  const buildMeta = {
+    bundleSize: 0,
+    modulesTransformed: 0,
     time: Math.floor(perf.duration)
   }
+
+  if (Array.isArray(output)) {
+    for (const chunk of output) {
+      for (const file of chunk.output) {
+        if ('modules' in file) {
+          buildMeta.bundleSize += file.code.length
+          buildMeta.modulesTransformed += Object.keys(file.modules).length
+        } else if ('source' in file) {
+          buildMeta.bundleSize += file.source.length
+        }
+      }
+    }
+  }
+
+  return buildMeta
 }
