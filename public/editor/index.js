@@ -143,6 +143,12 @@ function renderIframe() {
 function renderError(data) {
   const windowOutput = document.querySelector('#window-output')
   const errorMessage = document.createElement('pre')
+  Object.assign(errorMessage.style, {
+    height: 'calc(100% - 8px)',
+    marginRight: '-5px',
+    marginTop: '-8px',
+    marginLeft: '-5px'
+  })
   errorMessage.textContent = data.message.replace(/\u001b\[(31|39|36|33)m/g, '')
   windowOutput.replaceChildren(errorMessage)
 }
