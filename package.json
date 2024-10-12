@@ -3,9 +3,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "format": "prettier --write \"**/*.{js,ts}\""
   },
   "devDependencies": {
+    "@crashmax/prettier-config": "5.0.2",
     "@crashmax/tsconfig": "2.2.0",
     "@fastify/static": "8.0.1",
     "@types/node": "22.7.5",
