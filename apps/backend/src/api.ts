@@ -82,7 +82,7 @@ async function writeFiles(files: FileData[]) {
 async function buildProject() {
   const output = await build({
     root: path.resolve(publicDir, 'input'),
-    // logLevel: 'silent',
+    logLevel: 'silent',
     // cacheDir: path.resolve(publicDir, 'input', '.cache'),
     build: {
       emptyOutDir: true,

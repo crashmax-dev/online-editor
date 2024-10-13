@@ -2,14 +2,18 @@
   "name": "@online-editor/project",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
   "scripts": {
-    "dev": "pnpm --filter=./apps/* run dev",
-    "build": "pnpm --filter=./apps/* run build",
+    "dev": "turbo dev",
+    "dev:frontend": "turbo dev --filter=./apps/frontend",
+    "dev:backend": "turbo dev --filter=./apps/backend",
+    "build": "turbo type-check build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
     "@antfu/eslint-config": "3.7.3",
-    "@types/node": "22.7.5"
+    "@types/node": "22.7.5",
+    "turbo": "2.1.3"
   }
 }

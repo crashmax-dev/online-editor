@@ -1,10 +1,11 @@
 {
-  "name": "@online-editor/frontend",
+  "name": "@online-editor/backend",
   "type": "module",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@crashmax/tsconfig": "2.2.0",

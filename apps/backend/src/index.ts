@@ -22,7 +22,7 @@ app.register(
   { prefix: '/api' },
 )
 
-app.listen({ port: 3000 }, (err, address) => {
+app.listen({ host: 'localhost', port: 3000 }, (err, address) => {
   if (err) throw err
   console.log(`Server is now listening on ${address}`)
 })
