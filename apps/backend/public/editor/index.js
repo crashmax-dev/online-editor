@@ -6,7 +6,7 @@ Object.assign(app.style, {
   display: 'flex',
   flexDirection: 'column',
   gap: '8px',
-  padding: '8px'
+  padding: '8px',
 })
 
 let files = []
@@ -40,8 +40,8 @@ function renderEditor() {
       const tabs = menu.querySelectorAll('menu[role=tablist] > button')
       for (const tab of tabs) {
         if (
-          tab.getAttribute('aria-controls') ===
-          event.target.getAttribute('aria-controls')
+          tab.getAttribute('aria-controls')
+          === event.target.getAttribute('aria-controls')
         ) {
           tab.setAttribute('aria-selected', true)
           openTab(event)
@@ -72,7 +72,7 @@ function renderEditor() {
       resize: 'vertical',
       fontSize: '16px',
       fontFamily: 'monospace',
-      background: 'transparent'
+      background: 'transparent',
     })
     textarea.value = file.source
     textarea.addEventListener('input', () => (file.source = textarea.value))
@@ -95,7 +95,7 @@ function renderEditor() {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   })
 
   const windowTitlebar = document.createElement('div')
@@ -112,8 +112,7 @@ function renderEditor() {
   const maximizeWindowButton = document.createElement('button')
   maximizeWindowButton.setAttribute('aria-label', 'Maximize')
   maximizeWindowButton.addEventListener('click', () =>
-    open('/output/', 'target=_blank')
-  )
+    open('/output/', 'target=_blank'))
   windowTitlebarControls.append(maximizeWindowButton)
   windowTitlebar.append(windowTitlebarControls)
 
@@ -147,9 +146,9 @@ function renderError(data) {
     height: 'calc(100% - 8px)',
     marginRight: '-5px',
     marginTop: '-8px',
-    marginLeft: '-5px'
+    marginLeft: '-5px',
   })
-  errorMessage.textContent = data.message.replace(/\u001b\[(31|39|36|33)m/g, '')
+  errorMessage.textContent = data.message.replace(/\u001B\[(31|39|36|33)m/g, '')
   windowOutput.replaceChildren(errorMessage)
 }
 
@@ -175,7 +174,7 @@ function renderOutput(data) {
   windowStatusBar.replaceChildren(
     modulesTransformedField,
     bundleSizeField,
-    buildTimeField
+    buildTimeField,
   )
 }
 
@@ -183,10 +182,10 @@ function formatBytes(bytes) {
   const sizes = [
     'B',
     'KB',
-    'MB'
+    'MB',
   ]
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + sizes[i]
+  return Number.parseFloat((bytes / 1024 ** i).toFixed(2)) + sizes[i]
 }
 
 function openTab(event) {
@@ -218,7 +217,7 @@ async function sendFiles() {
     const req = await fetch('/api/files', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(files)
+      body: JSON.stringify(files),
     })
     const data = await req.json()
     if (data.error) {

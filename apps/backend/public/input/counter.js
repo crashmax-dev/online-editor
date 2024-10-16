@@ -6,6 +6,6 @@ export function counter(initialValue = 0) {
     increment: () => ++count,
     get count() {
       return count
-    }
+    },
   }
 }
